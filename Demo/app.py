@@ -6,11 +6,11 @@ import json, os, time
 # === 设置 API Key ===
 openai.api_key = "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"
 
-# === 页面配置 ===
+# set page
 st.set_page_config(page_title="ChatPipe Lite", layout="wide")
 st.title("📊 ChatPipe Lite: Data Cleaning with ChatGPT")
 
-# === 初始化状态 ===
+
 if "show_process" not in st.session_state:
     st.session_state["show_process"] = False
 if "last_result" not in st.session_state:
@@ -18,13 +18,13 @@ if "last_result" not in st.session_state:
 if "last_variables" not in st.session_state:
     st.session_state["last_variables"] = {}
 
-# === 上传数据集 ===
+# upload data 
 uploaded_file = st.file_uploader("Upload your CSV", type=["csv"])
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
     st.write("### 🔍 Preview of your dataset:", df.head())
 
-    # === 数据集感知：分析缺失值 ===
+    # warning for missing value
     st.subheader("📊 Dataset Insights:")
     missing = df.isnull().sum()
     missing_cols = missing[missing > 0]
@@ -35,7 +35,7 @@ if uploaded_file:
     else:
         st.success("✅ No missing values detected.")
 
-    # === 用户自然语言描述任务 ===
+    # use natural language 
     user_instruction = st.text_area("🧠 What do you want to do with this dataset?")
 
     if st.button("🚀 Generate transformation code"):
@@ -83,11 +83,11 @@ Do NOT include explanations or markdown. Output ONLY executable code."""
                     exec(code, {}, exec_locals)
                     new_df = exec_locals['df']
 
-                    # ✅ 存入 session 变量
+                    
                     st.session_state["last_result"] = new_df
                     st.session_state["last_variables"] = {k: v for k, v in exec_locals.items() if k != "df"}
 
-                    # 💾 保存历史
+                    # save history
                     os.makedirs("history", exist_ok=True)
                     ts = time.strftime("%Y%m%d-%H%M%S")
                     with open(f"history/transform_{ts}.json", "w") as f:
@@ -99,11 +99,17 @@ Do NOT include explanations or markdown. Output ONLY executable code."""
             except Exception as e:
                 st.error(f"❌ Failed to get response from OpenAI API:\n{e}")
 
-    # ✅ 永远展示最后一次结果
     if st.session_state["last_result"] is not None:
         st.success("✅ Transformation applied successfully!")
         st.write("### 📄 Transformed Data Preview:")
         st.dataframe(st.session_state["last_result"].head())
+        csv = st.session_state["last_result"].to_csv(index=False).encode("utf-8")
+        st.download_button(
+            label="📥 Download CSV",
+            data=csv,
+            file_name="transformed_data.csv",
+            mime="text/csv",
+        )
 
         for var_name, value in st.session_state["last_variables"].items():
             st.subheader(f"📤 Output: `{var_name}`")
