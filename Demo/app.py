@@ -3,8 +3,7 @@ import pandas as pd
 import openai
 import json, os, time
 
-# === 设置 API Key ===
-openai.api_key = "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"
+openai.api_key = 
 
 # set page
 st.set_page_config(page_title="ChatPipe Lite", layout="wide")
