@@ -1,0 +1,4 @@
+{
+  "prompt": "The dataset contains the following columns: ['name', 'age', 'email']\nUser instruction: get email of people if age greater than 28\n\nGenerate only Python pandas code to apply the above transformation to a DataFrame named 'df'.\nMake sure to handle missing values (e.g., with dropna or fillna) before performing type conversions or aggregations.\nDo NOT include explanations or markdown. Output ONLY executable code.",
+  "code": "df = df.dropna()\ndf['age'] = df['age'].astype(int)\ndf = df[df['age'] > 28]\nresult = df['email']"
+}
